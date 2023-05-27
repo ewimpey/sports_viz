@@ -1,0 +1,44 @@
+---
+title: "baseball_viz"
+author: "EW"
+date: '2023-05-26'
+output: html_document
+---
+
+```{r}
+library(baseballr)
+library(dplyr)
+
+# set params here
+tm = "PHI"
+yr = 2021
+num_players = 7
+
+# Find top wRC players on a team
+all_batters <- baseballr::fg_batter_leaders(x = yr, y = yr, qual = 0)
+
+# helper function to get wRC by player, by date
+get_player_df <- function(player_id, year){
+  player_wrc <- 
+    baseballr::fg_batter_game_logs(playerid = player_id, year = year) %>%
+    select(Date, wRC) %>%
+    group_by(Date) %>%
+    summarise(wRC = mean(wRC))
+  
+  player_wrc$player <- player_id
+  
+  return(player_wrc)
+}
+
+# Get top n players on a team
+team_top <- all_batters %>%
+  filter(Team == tm) %>%
+  select(playerid, Name, wRC) %>%
+  arrange(wRC, decreasing = TRUE) %>%
+  top_n(num_players) %>%
+  pull(playerid)
+  
+# get dataframe of top players' wRC by date
+m = lapply(team_top, get_player_df, year=2022)
+tm_wrc_by_date <- do.call(rbind, m)
+```

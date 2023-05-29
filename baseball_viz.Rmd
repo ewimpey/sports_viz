@@ -10,12 +10,20 @@ library(baseballr)
 library(dplyr)
 
 # set params here
-tm = "PHI"
-yr = 2021
+tm = "ATL"
+yr = 2023
 num_players = 7
 
 # Find top wRC players on a team
 all_batters <- baseballr::fg_batter_leaders(x = yr, y = yr, qual = 0)
+
+# Get top n players on a team
+team_top <- all_batters %>%
+  filter(Team == tm) %>%
+  select(playerid, Name, wRC) %>%
+  arrange(wRC, decreasing = TRUE) %>%
+  top_n(num_players, wt = wRC) %>%
+  select(Name, playerid)
 
 # helper function to get wRC by player, by date
 get_player_df <- function(player_id, year){
@@ -25,20 +33,44 @@ get_player_df <- function(player_id, year){
     group_by(Date) %>%
     summarise(wRC = mean(wRC))
   
-  player_wrc$player <- player_id
+  player_wrc$playerid <- player_id
   
   return(player_wrc)
 }
 
-# Get top n players on a team
-team_top <- all_batters %>%
-  filter(Team == tm) %>%
-  select(playerid, Name, wRC) %>%
-  arrange(wRC, decreasing = TRUE) %>%
-  top_n(num_players) %>%
-  pull(playerid)
+# get vector of player ids
+player_ids <- unique(team_top$playerid)
   
 # get dataframe of top players' wRC by date
-m = lapply(team_top, get_player_df, year=2022)
-tm_wrc_by_date <- do.call(rbind, m)
+m = lapply(player_ids, get_player_df, year=2023)
+
+
+tm_wrc_by_date <- do.call(rbind, m) %>%
+  left_join(team_top, by = "playerid")
+
+
+```
+
+```{r}
+tmp_fun <- function(team_top, yr){
+  player_ids <- unique(team_top$playerid)
+  
+  m = lapply(player_ids, get_player_df, year=yr)
+  
+  tm_wrc_by_date <- do.call(rbind, m) %>%
+    left_join(team_top, by = "playerid")
+}
+
+#wtf, this works
+b <- tmp_fun(a, 2023)
+
+```
+
+
+```{r}
+devtools::load_all()
+
+b <- sports_viz::get_top_batters("ATL", 2023)
+  
+d <- get_daily_wrcs(b, 2023)
 ```

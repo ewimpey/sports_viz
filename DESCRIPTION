@@ -1,4 +1,4 @@
-Package: sports_viz
+Package: sports-viz
 Title: A package to make cool baseball visualizations
 Version: 0.1.0
 Authors@R: 

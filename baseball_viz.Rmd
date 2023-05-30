@@ -51,26 +51,122 @@ tm_wrc_by_date <- do.call(rbind, m) %>%
 
 ```
 
-```{r}
-tmp_fun <- function(team_top, yr){
-  player_ids <- unique(team_top$playerid)
-  
-  m = lapply(player_ids, get_player_df, year=yr)
-  
-  tm_wrc_by_date <- do.call(rbind, m) %>%
-    left_join(team_top, by = "playerid")
-}
 
-#wtf, this works
-b <- tmp_fun(a, 2023)
-
-```
 
 
 ```{r}
 devtools::load_all()
-
-b <- sports_viz::get_top_batters("ATL", 2023)
+tm = "WSN"
+yr = 2019
+b <- sports_viz::get_top_batters(tm, yr)
   
-d <- get_daily_wrcs(b, 2023)
+d <- get_daily_wrcs(b, yr)
+
+e <- sports_viz::complete_wrc_df(d)
+
+cp <- sports_viz::get_cp(tm)
+
+f <- sports_viz::viz_wrc(e, tm, yr, cp=cp)
+
+f
+
+g <- sports_viz::generate_viz("BAL", 2014)
+g
+```
+
+
+```{r}
+# Hold this for getting ranking/postseason performance
+library(baseballr)
+
+bref_standings_on_date("2022-12-31", "NL East")
+
+library(lahman)
+```
+
+```{r}
+# Assigning color schemes
+team_colors <- list(
+  ATL = c('#1e305f', #dark blue
+        '#01528c', #medium blue
+        '#ffffff', #white
+        '#a01f3d', #scarlet
+        '#d62045', #red
+        '#8dbae2', #80s blue
+        '#32426c', #dark blue2
+        '#808080', #medium gray
+        '#e7e7e8'), #light gray
+  WAS = c('#AB0003', #red
+          '#14225A', #navy blue
+          '#FFFFFF', #white
+          '#5f7080', #blue-gray
+          '#808080', #medium gray
+          '#c4c2c2', #light gray
+          '#ba0c2f' #other red
+          ), 
+  BAL = c('#DF4601', #orange
+          '#000000', #black)
+          '#FBD872', #yellow
+          '#ac3702', #dark orange
+          '#808080', #medium gray
+          '#e7e7e8', #light gray
+          '#ffffff' #white
+          ), 
+  HOU = c('#002147', #dark blue
+        '#D6492A', #red-orange
+        '#E57200', #orange
+        '#FFFFFF', #white
+        '#002D62', #dark blue
+        '#FFCD00', #retro yellow
+        '#E87722', #retro orange
+        '#97999B', #gray
+        
+        '#e7e7e8' #light gray
+        )
+  # Add more teams and their corresponding color schemes here
+)
+
+
+```
+
+```{r}
+library(ggplot2)
+library(ggstream)
+
+cp <- team_colors[[tm]]
+
+ggplot(e, aes(x = Date, y = wRC, fill = Name)) +
+  #geom_stream(extra_span = 0.2) +
+  geom_stream(true_range = "none",
+              #sorting = "inside_out",
+              bw = 0.55) +
+  scale_fill_manual(values = cp) + 
+  theme(axis.ticks.y = element_blank(),
+        axis.line.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.line.x = element_blank(),
+        axis.text.x = element_blank(),
+        #legend.position = "none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        #plot.title = element_text(hjust = 0.5, size = 120, margin = margin(30,0,0,0)),
+        #plot.subtitle = element_text(hjust = 0.5, size = 90),
+        legend.position = "bottom",
+        legend.justification = "left",
+        legend.text = element_text()) +
+  #theme_minimal() +
+  #cowplot::theme_minimal_vgrid() +
+  labs(title = paste0(yr, " ", tm),
+       subtitle = "Offensive Production",
+       y = '',
+       x = '')# +
+  #theme(legend.title=element_blank(),
+  #      legend.key.size = unit(1,"cm")) + guides(fill = guide_legend(ncol = 1)) #+
+  #annotation_custom(g, xmin = 1, xmax = 30, ymin = -10)#+
+  #geom_stream_label(aes(label = variable))
+
+
+
 ```

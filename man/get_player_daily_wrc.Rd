@@ -2,7 +2,7 @@
 % Please edit documentation in R/batter_viz_func.R
 \name{get_player_daily_wrc}
 \alias{get_player_daily_wrc}
-\title{Add two numbers}
+\title{This function gets the daily wRC for a given batter for a given year.}
 \usage{
 get_player_daily_wrc(player_id, yr)
 }
@@ -15,5 +15,5 @@ get_player_daily_wrc(player_id, yr)
 A tibble containing daily wRC for a season
 }
 \description{
-This function adds two numbers and returns the result.
+This function gets the daily wRC for a given batter for a given year.
 }

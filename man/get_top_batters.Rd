@@ -5,7 +5,7 @@
 \title{This function gets the FanGraphs Player IDs for the 
 top n players for a given team and year.}
 \usage{
-get_top_batters(tm, yr)
+get_top_batters(tm, yr, num_players = 7)
 }
 \arguments{
 \item{tm}{Character value indicating the team.}
@@ -13,7 +13,7 @@ get_top_batters(tm, yr)
 \item{yr}{A numeric value indicating the four digit year.}
 }
 \value{
-A character vector of player_ids
+A tibble with player name and id, and wRC
 }
 \description{
 This function gets the FanGraphs Player IDs for the 
